@@ -35,7 +35,7 @@ COPY aad-login_0.1.tar.gz /opt/
 RUN cd /opt && \
     tar xzf aad-login_0.1.tar.gz -C / && \
     cd /opt/aad-login && \
-    sudo npm install && \
+    npm install && \
     cp ./aad-login /usr/local/bin/aad-login && \
     chmod +x /usr/local/bin/aad-login &&  \
     sed -i.bak "s|var directory = '';|var directory = ${DIRECTORY};|" && \
