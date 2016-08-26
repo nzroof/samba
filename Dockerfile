@@ -38,8 +38,8 @@ RUN cd /opt && \
     cd /opt/aad-login && \
     npm install && \
     chmod +x /usr/local/bin/aad-login &&  \
-    sed -i.bak "s|var directory = '';|var directory = ${DIRECTORY};|" && \
-    sed -i "s|var client_id = '';|var client_id = ${CLIENT_ID};|"
+    sed -i.bak "s|var directory = '';|var directory = ${DIRECTORY};|" aad-login.js && \
+    sed -i "s|var client_id = '';|var client_id = ${CLIENT_ID};|" aad-login.js
 
 RUN cd /etc/pam.d/ && \
     sed  -i.bak '|^$|a auth sufficient pam_exec.so expose_authtok /usr/local/bin/aad-login' common-auth
