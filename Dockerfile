@@ -42,7 +42,7 @@ RUN cd /opt && \
     sed -i "s|var client_id = '';|var client_id = ${CLIENT_ID};|" aad-login.js
 
 RUN cd /etc/pam.d/ && \
-    sed  -i.bak '|^$|a auth sufficient pam_exec.so expose_authtok /usr/local/bin/aad-login' common-auth
+    sed  -i.bak '\|^$|a auth sufficient pam_exec.so expose_authtok /usr/local/bin/aad-login' common-auth
 
 COPY samba.sh /usr/bin/
 
