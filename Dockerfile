@@ -30,9 +30,9 @@ RUN export DEBIAN_FRONTEND='noninteractive' && \
     auth-client-config -t nss -p lac_ldap && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
+COPY aad-login_0.1.tar.gz /opt/
 # Install aad-login
 RUN cd /opt && \
-    wget https://github.com/bureado/aad-login/raw/master/aad-login_0.1.tar.gz && \
     tar xzf aad-login_0.1.tar.gz -C / && \
     cd /opt/aad-login && \
     sudo npm install && \
