@@ -31,12 +31,12 @@ RUN export DEBIAN_FRONTEND='noninteractive' && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
 COPY aad-login_0.1.tar.gz /opt/
+COPY aad-login /usr/local/bin/
 # Install aad-login
 RUN cd /opt && \
     tar xzf aad-login_0.1.tar.gz -C / && \
     cd /opt/aad-login && \
     npm install && \
-    cp ./aad-login /usr/local/bin/aad-login && \
     chmod +x /usr/local/bin/aad-login &&  \
     sed -i.bak "s|var directory = '';|var directory = ${DIRECTORY};|" && \
     sed -i "s|var client_id = '';|var client_id = ${CLIENT_ID};|"
