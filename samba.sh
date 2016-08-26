@@ -100,14 +100,17 @@ group() { local name="${1}"
 #   name) for user
 #   password) for user
 # Return: user added to container
-user() { local name="${1}" passwd="${2}" groups="${3}"
+user() { local name="${1}" passwd="${2}" groups=${3:-""}
     if [[ ! ${groups:-""} ]]; then
         for g in $(echo $groups | sed "s|,| |g")
         do
             group "$g"
         done
+        useradd "$name" -M -G "$groups"
+    else
+        useradd "$name" -M
     fi
-    useradd "$name" -M -G "$groups"
+
     echo "$passwd" | tee - | smbpasswd -s -a "$name"
 }
 
