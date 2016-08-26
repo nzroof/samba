@@ -1,6 +1,9 @@
 FROM ubuntu:16.04
 MAINTAINER Graeme Gellatly <graemeg@roof.co.nz>
 
+ENV DIRECTORY your.ad.domain
+ENV CLIENT_ID secret
+
 # Install samba
 RUN export DEBIAN_FRONTEND='noninteractive' && \
     apt-get update -qq && \
@@ -29,8 +32,8 @@ RUN export DEBIAN_FRONTEND='noninteractive' && \
 
 # Install aad-login
 RUN cd /opt && \
-    wget https://github.com/bureado/aad-login/archive/master.zip && \
-    tar xzf aad-login*.tar.gz -C / && \
+    wget https://github.com/bureado/aad-login/blob/master/aad-login_0.1.tar.gz && \
+    tar xzf aad-login_0.1.tar.gz -C / && \
     cd /opt/aad-login && \
     cp ./aad-login /usr/local/bin/aad-login && chmod +x /usr/local/bin/aad-login &&  \
     sudo npm install && \
