@@ -171,7 +171,7 @@ while getopts ":hg:i:nps:t:u:w:" opt; do
         p) PERMISSIONS="true" ;;
         s) eval share $(sed 's/^\|$/"/g; s/;/" "/g' <<< $OPTARG) ;;
         t) timezone "$OPTARG" ;;
-        u) eval user $(sed 's|;| |g' <<< $OPTARG) ;;
+        u) eval user $(sed 's/^\|$/"/g; s/;/" "/g' <<< $OPTARG) ;;
         w) workgroup "$OPTARG" ;;
         "?") echo "Unknown option: -$OPTARG"; usage 1 ;;
         ":") echo "No argument value for option: -$OPTARG"; usage 2 ;;
