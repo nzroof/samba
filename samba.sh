@@ -15,6 +15,8 @@
 #       CREATED: 09/28/2014 12:11
 #      REVISION: 1.0
 #===============================================================================
+# Support for groups added by Graeme Gellatly (graemeg@roof.co.nz)
+
 
 set -o nounset                              # Treat unset variables as an error
 
@@ -84,13 +86,28 @@ timezone() { local timezone="${1:-EST5EDT}"
     fi
 }
 
+
+### user: add a user
+# Arguments:
+#   name) for group
+# Return: group added to container
+group() { local name="${1}"
+    [[ $name == smb* ]] && groupadd -f "$name"
+ }
+
 ### user: add a user
 # Arguments:
 #   name) for user
 #   password) for user
 # Return: user added to container
-user() { local name="${1}" passwd="${2}"
-    useradd "$name" -M
+user() { local name="${1}" passwd="${2}" groups="${3}"
+    if [[ ! ${groups:-""} ]]; then
+        for g in $(echo $groups | sed "s|,| |g")
+        do
+            group "$g"
+        done
+    fi
+    useradd "$name" -M -G "$groups"
     echo "$passwd" | tee - | smbpasswd -s -a "$name"
 }
 
@@ -110,6 +127,10 @@ usage() { local RC=${1:-0}
     echo "Usage: ${0##*/} [-opt] [command]
 Options (fields in '[]' are optional, '<>' are required):
     -h          This help
+    -g \"<group>\"  Add a group
+                Only necessary if adding groups to shares with no user assigned
+                Otherwise they will be created automatically with user
+                NOTE: Must start with smb
     -i \"<path>\" Import smbpassword
                 required arg: \"<path>\" - full file path in container
     -n          Start the 'nmbd' daemon to advertise the shares
@@ -119,17 +140,19 @@ Options (fields in '[]' are optional, '<>' are required):
                 <name> is how it's called for clients
                 <path> path to share
                 NOTE: for the default value, just leave blank
+                NOTE: groups must be prefixed with @ e.g. @smbaccounts
                 [browsable] default:'yes' or 'no'
                 [readonly] default:'yes' or 'no'
                 [guest] allowed default:'yes' or 'no'
-                [users] allowed default:'all' or list of allowed users
-                [admins] allowed default:'none' or list of admin users
+                [users] allowed default:'all' or list of allowed users or groups
+                [admins] allowed default:'none' or list of admin users or groups
     -t \"\"       Configure timezone
                 possible arg: \"[timezone]\" - zoneinfo timezone for container
-    -u \"<username;password>\"       Add a user
-                required arg: \"<username>;<passwd>\"
+    -u \"<username;password>[;groups]\"       Add a user
+                required arg: \"<username>;<password>\"
                 <username> for user
                 <password> for user
+                [groups] comma seperated list of groups for user
     -w \"<workgroup>\"       Configure the workgroup (domain) samba should use
                 required arg: \"<workgroup>\"
                 <workgroup> for samba
@@ -139,9 +162,10 @@ The 'command' (if provided and valid) will be run instead of samba
     exit $RC
 }
 
-while getopts ":hi:nps:t:u:w:" opt; do
+while getopts ":hg:i:nps:t:u:w:" opt; do
     case "$opt" in
         h) usage ;;
+        g) group "$OPTARG" ;;
         i) import "$OPTARG" ;;
         n) NMBD="true" ;;
         p) PERMISSIONS="true" ;;

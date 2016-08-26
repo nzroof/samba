@@ -1,8 +1,11 @@
-[![logo](https://raw.githubusercontent.com/dperson/samba/master/logo.jpg)](https://www.samba.org)
+[![logo](https://raw.githubusercontent.com/nzroof/samba/master/logo.jpg)](https://www.samba.org)
 
 # Samba
 
 Samba docker container
+
+# Release Tags
+0.1 26/08/2016 - Experimental
 
 # What is Samba?
 
@@ -16,20 +19,27 @@ By default there are no shares configured, additional ones can be added.
 
 ## Hosting a Samba instance
 
-    sudo docker run -it -p 139:139 -p 445:445 -d dperson/samba
+    sudo docker run -it -p 139:139 -p 445:445 -d roofnz/samba
 
 OR set local storage:
 
+    sudo docker volume create files
     sudo docker run -it --name samba -p 139:139 -p 445:445 \
-                -v /path/to/directory:/mount \
-                -d dperson/samba
+                -v files:/mount \
+                -d roofnz/samba
 
 ## Configuration
 
-    sudo docker run -it --rm dperson/samba -h
+These options are for the entrypoint and must appear after roofnz/samba
+
+    sudo docker run -it --rm roofnz/samba -h
     Usage: samba.sh [-opt] [command]
     Options (fields in '[]' are optional, '<>' are required):
         -h          This help
+        -g \"<group>\"  Add a group
+                    Only necessary if adding groups to shares with no user assigned
+                    Otherwise they will be created automatically with user
+                    NOTE: Must start with smb
         -i "<path>" Import smbpassword
                     required arg: "<path>" - full file path in container
         -n          Start the 'nmbd' daemon to advertise the shares
@@ -42,8 +52,8 @@ OR set local storage:
                     [browsable] default:'yes' or 'no'
                     [readonly] default:'yes' or 'no'
                     [guest] allowed default:'yes' or 'no'
-                    [users] allowed default:'all' or list of allowed users
-                    [admins] allowed default:'none' or list of admin users
+                    [users] allowed default:'all' or list of allowed users or groups
+                    [admins] allowed default:'none' or list of admin users or groups
         -t ""       Configure timezone
                     possible arg: "[timezone]" - zoneinfo timezone for container
         -u "<username;password>"       Add a user
@@ -72,25 +82,27 @@ Any of the commands can be run at creation with `docker run` or later with
 
 ### Setting the Timezone
 
-    sudo docker run -it -p 139:139 -p 445:445 -d dperson/samba -t EST5EDT
+    sudo docker run -it -p 139:139 -p 445:445 -d roofnz/samba -t EST5EDT
 
 OR using `environment variables`
 
-    sudo docker run -it -e TZ=EST5EDT -p 139:139 -p 445:445 -d dperson/samba
+    sudo docker run -it -e TZ=EST5EDT -p 139:139 -p 445:445 -d roofnz/samba
 
 Will get you the same settings as
 
-    sudo docker run -it --name samba -p 139:139 -p 445:445 -d dperson/samba
+    sudo docker run -it --name samba -p 139:139 -p 445:445 -d roofnz/samba
     sudo docker exec -it samba samba.sh -t EST5EDT ls -AlF /etc/localtime
     sudo docker restart samba
 
 ### Start an instance creating users and shares:
 
     sudo docker run -it -p 139:139 -p 445:445 -d dperson/samba \
-                -u "example1;badpass" \
-                -u "example2;badpass" \
+                -u "example1;badpass;" \
+                -u "example2;badpass;smbaccounts,smboregon" \
+                -g "smbadmin"
+                -g "smbmexico"
                 -s "public;/share" \
-                -s "users;/srv;no;no;no;example1,example2" \
+                -s "users;/srv;no;no;no;example1,example2,@smbmexico;@smbadmins" \
                 -s "example1 private;/example1;no;no;no;example1" \
                 -s "example2 private;/example2;no;no;no;example2"
 
@@ -99,4 +111,8 @@ Will get you the same settings as
 ## Issues
 
 If you have any problems with or questions about this image, please contact me
-through a [GitHub issue](https://github.com/dperson/samba/issues).
+through a [GitHub issue](https://github.com/nzroof/samba/issues).
+
+## History
+
+This image was forked from dperson/samba to add group support and to authenticate users with Azure Active Directory.
