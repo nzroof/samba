@@ -24,21 +24,21 @@ RUN export DEBIAN_FRONTEND='noninteractive' && \
     echo '   encrypt_passwords = no' >>/etc/samba/smb.conf && \
     echo '' >>/etc/samba/smb.conf && \
     apt-get clean && \
-    && auth-client-config -t nss -p lac_ldap \
+    auth-client-config -t nss -p lac_ldap && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
 # Install aad-login
-RUN cd /opt \
-    && wget https://github.com/bureado/aad-login/archive/master.zip \
-    && tar xzf aad-login*.tar.gz -C / \
-    && cd /opt/aad-login \
-    && cp ./aad-login /usr/local/bin/aad-login && chmod +x /usr/local/bin/aad-login
-    && sudo npm install
-    && sed -i.bak "s|var directory = '';|var directory = ${DIRECTORY};|"
-    && sed -i "s|var client_id = '';|var client_id = ${CLIENT_ID};|"
+RUN cd /opt && \
+    wget https://github.com/bureado/aad-login/archive/master.zip && \
+    tar xzf aad-login*.tar.gz -C / && \
+    cd /opt/aad-login && \
+    cp ./aad-login /usr/local/bin/aad-login && chmod +x /usr/local/bin/aad-login &&  \
+    sudo npm install && \
+    sed -i.bak "s|var directory = '';|var directory = ${DIRECTORY};|" && \
+    sed -i "s|var client_id = '';|var client_id = ${CLIENT_ID};|"
 
-RUN cd /etc/pam.d/ \
-    && sed  -i.bak '|^$|a auth sufficient pam_exec.so expose_authtok /usr/local/bin/aad-login' common-auth
+RUN cd /etc/pam.d/ && \
+    sed  -i.bak '|^$|a auth sufficient pam_exec.so expose_authtok /usr/local/bin/aad-login' common-auth
 
 COPY samba.sh /usr/bin/
 
