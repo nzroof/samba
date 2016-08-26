@@ -35,8 +35,9 @@ RUN cd /opt && \
     wget https://github.com/bureado/aad-login/raw/master/aad-login_0.1.tar.gz && \
     tar xzf aad-login_0.1.tar.gz -C / && \
     cd /opt/aad-login && \
-    cp ./aad-login /usr/local/bin/aad-login && chmod +x /usr/local/bin/aad-login &&  \
     sudo npm install && \
+    cp ./aad-login /usr/local/bin/aad-login && \
+    chmod +x /usr/local/bin/aad-login &&  \
     sed -i.bak "s|var directory = '';|var directory = ${DIRECTORY};|" && \
     sed -i "s|var client_id = '';|var client_id = ${CLIENT_ID};|"
 
